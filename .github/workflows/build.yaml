@@ -1,53 +1,61 @@
-# This workflow is configured for a GitHub Actions self-hosted runner on AWS EC2
-name: Build and Test
+name: Node.js CI/CD
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
   build:
-    runs-on: [self-hosted, linux, ec2]
-    services:
-      mongo:
-        image: mongo:7
-        ports:
-          - 27017:27017
-    env:
-      MONGODB_URI: mongodb://localhost:27017/testdb
-      VITE_Open_Weather_API: ${{ secrets.VITE_Open_Weather_API }}
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        node-version: [20.x]
     steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
       - name: Install frontend dependencies
-        run: npm install
+        run: npm ci
         working-directory: frontend
+
       - name: Build frontend
         run: npm run build
         working-directory: frontend
         env:
           VITE_Open_Weather_API: ${{ secrets.VITE_Open_Weather_API }}
+
       - name: Install backend dependencies
-        run: npm install
+        run: npm ci
         working-directory: backend
+
       - name: Copy frontend build to backend
         run: |
           rm -rf backend/dist
           cp -r frontend/dist backend/
+
       - name: Lint frontend
         run: npm run lint || echo "Frontend linting errors (not fatal)"
         working-directory: frontend
+
       - name: Lint backend
         run: npm run lint || echo "Backend linting errors (not fatal)"
         working-directory: backend
+
       - name: Run backend tests (if present)
         run: |
           if [ -f backend/server.test.js ]; then npm test; else echo "No backend tests"; fi
         working-directory: backend
+
+      - name: Create .env file for backend
+        run: |
+          touch backend/.env
+          echo "${{ secrets.ENV }}" > backend/.env
+
+      - name: Restart BackendAPI with pm2
+        run: pm2 restart BackendAPI
 
 
