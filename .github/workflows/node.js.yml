@@ -25,7 +25,32 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
+    - name: Setup Node.js for backend (with cache)
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
         cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+      working-directory: ./backend
+    - name: Install backend dependencies
+      run: npm ci
+      working-directory: ./backend
+    - name: Build backend
+      run: npm run build --if-present
+      working-directory: ./backend
+    - name: Setup Node.js for frontend (with cache)
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+      working-directory: ./frontend
+    - name: Install frontend dependencies
+      run: npm ci
+      working-directory: ./frontend
+    - name: Build frontend
+      run: npm run build --if-present
+      working-directory: ./frontend
     - name: Install backend dependencies
       run: npm ci
       working-directory: ./backend
