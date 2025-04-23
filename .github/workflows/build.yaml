@@ -1,0 +1,66 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:7
+        ports:
+          - 27017:27017
+    env:
+      MONGODB_URI: mongodb://localhost:27017/testdb
+      VITE_Open_Weather_API: ${{ secrets.VITE_Open_Weather_API }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install frontend dependencies
+        run: npm install
+        working-directory: frontend
+      - name: Build frontend
+        run: npm run build
+        working-directory: frontend
+        env:
+          VITE_Open_Weather_API: ${{ secrets.VITE_Open_Weather_API }}
+      - name: Install backend dependencies
+        run: npm install
+        working-directory: backend
+      - name: Copy frontend build to backend
+        run: |
+          rm -rf backend/dist
+          cp -r frontend/dist backend/
+      - name: Lint frontend
+        run: npm run lint || echo "Frontend linting errors (not fatal)"
+        working-directory: frontend
+      - name: Lint backend
+        run: npm run lint || echo "Backend linting errors (not fatal)"
+        working-directory: backend
+      - name: Run backend tests (if present)
+        run: |
+          if [ -f backend/server.test.js ]; then npm test; else echo "No backend tests"; fi
+        working-directory: backend
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Set short SHA
+        id: vars
+        run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/weather-app:${{ env.SHORT_SHA }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/weather-app:latest
