@@ -1,3 +1,4 @@
+# This workflow is configured for a GitHub Actions self-hosted runner on AWS EC2
 name: Build and Test
 
 on:
@@ -8,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, ec2]
     services:
       mongo:
         image: mongo:7
@@ -48,19 +49,5 @@ jobs:
         run: |
           if [ -f backend/server.test.js ]; then npm test; else echo "No backend tests"; fi
         working-directory: backend
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Set short SHA
-        id: vars
-        run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: ./
-          push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/weather-app:${{ env.SHORT_SHA }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/weather-app:latest
+
+
