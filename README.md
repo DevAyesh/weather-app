@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+# weather-app
+=======
 # Weather App
 
 This is a straightforward weather application that lets you check the current weather and forecast for any city. Your recent searches are saved anonymously (no login required) and stored in MongoDB Atlas. The app uses the OpenWeatherMap API for weather data.
@@ -61,3 +64,4 @@ docker run -d -p 4000:4000 weather-app
 ### CI/CD
 - GitHub Actions handle building, linting, testing, and Docker image pushes.
 
+>>>>>>> dev

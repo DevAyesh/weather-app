@@ -1,0 +1,29 @@
+{
+  "name": "weather-app-0",
+  "version": "1.0.3",
+  "description": "<<<<<<< HEAD\r # weather-app\r =======\r # Weather App",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky install",
+    "release": "standard-version"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DevAyesh/weather-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DevAyesh/weather-app/issues"
+  },
+  "homepage": "https://github.com/DevAyesh/weather-app#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
+    "commitlint": "^19.8.0",
+    "husky": "^9.1.7",
+    "standard-version": "^9.5.0"
+  }
+}
