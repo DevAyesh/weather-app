@@ -1,0 +1,129 @@
+openapi: 3.0.3
+info:
+  title: Weather App API
+  description: API documentation for the Weather App backend, which handles weather search history and retrieval.
+  version: 1.0.0
+servers:
+  - url: http://localhost:4000
+    description: Local development server
+paths:
+  /api/search:
+    post:
+      summary: Save a weather search
+      description: Save a user's weather search details (anonymous, device-based).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - visitorId
+                - city
+                - weather
+                - time
+              properties:
+                visitorId:
+                  type: string
+                  description: Unique identifier for the device/browser.
+                city:
+                  type: string
+                  description: City name searched for.
+                lat:
+                  type: number
+                  description: Latitude of the city.
+                lon:
+                  type: number
+                  description: Longitude of the city.
+                weather:
+                  type: object
+                  description: Weather details for the search.
+                  properties:
+                    temp:
+                      type: number
+                    main:
+                      type: string
+                    description:
+                      type: string
+                time:
+                  type: string
+                  format: date-time
+                  description: ISO timestamp of the search.
+      responses:
+        '200':
+          description: Search saved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '400':
+          description: Missing required fields
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /api/searches/{visitorId}:
+    get:
+      summary: Get recent searches for a visitor
+      description: Returns the 5 most recent searches for the given visitorId.
+      parameters:
+        - name: visitorId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the device/browser.
+      responses:
+        '200':
+          description: List of recent searches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    visitorId:
+                      type: string
+                    city:
+                      type: string
+                    lat:
+                      type: number
+                    lon:
+                      type: number
+                    weather:
+                      type: object
+                      properties:
+                        temp:
+                          type: number
+                        main:
+                          type: string
+                        description:
+                          type: string
+                    time:
+                      type: string
+                      format: date-time
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
