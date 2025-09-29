@@ -24,7 +24,7 @@
     "@commitlint/config-conventional": "^19.8.0",
     "commitlint": "^19.8.0",
     "husky": "^9.1.7",
-    "sonarqube-scanner": "^4.3.0",
+    "sonarqube-scanner": "^4.3.2",
     "standard-version": "^9.5.0"
   }
 }
